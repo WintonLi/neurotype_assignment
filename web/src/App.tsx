@@ -1,21 +1,27 @@
-import { useEffect, useState } from 'react'
+import { Route, BrowserRouter, Routes, Navigate } from 'react-router-dom';
+import Assessment from './views/Assessment';
+import Audit from './views/Audit';
+import './App.css';
+import ErrorBoundary from './components/ErrorBoundary';
 
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+import AppLayout from './views/AppLayout';
 
-export default function App() {
-  const [api, setApi] = useState<'checking' | 'up' | 'down'>('checking')
 
-  useEffect(() => {
-    fetch(`${API}/health`)
-      .then((r) => setApi(r.ok ? 'up' : 'down'))
-      .catch(() => setApi('down'))
-  }, [])
-
+function App() {
   return (
-    <main style={{ fontFamily: 'system-ui, sans-serif', padding: '2rem', maxWidth: 640 }}>
-      <h1>Assessment Review</h1>
-      <p>Harness is running. The API is {api}.</p>
-      <p>Replace this with your own thing. Styling, routing and state are all your call.</p>
-    </main>
-  )
+    <ErrorBoundary>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<AppLayout />}>
+              <Route path="assessment" element={<Assessment />} />
+              <Route path="audit" element={<Audit />} />
+              <Route path="/" element={<Navigate replace to="/assessment" />} />
+            </Route>
+            <Route path="/" element={<Navigate replace to="/assessment" />} />
+          </Routes>
+        </BrowserRouter>
+    </ErrorBoundary>
+  );
 }
+
+export default App;
