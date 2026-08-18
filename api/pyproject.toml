@@ -14,7 +14,7 @@ dependencies = [
 
 
 [tool.poe.tasks]
-dev = "uvicorn main:app --reload --host 127.0.0.1 --port 2980"
+dev = "uvicorn main:app --reload --host 127.0.0.1 --port 8000"
 test = "pytest ./test"
 
 [tool.ruff.lint.flake8-bugbear]
