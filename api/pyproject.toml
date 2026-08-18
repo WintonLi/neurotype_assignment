@@ -1,0 +1,27 @@
+[project]
+name = "api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "alembic>=1.19.1",
+    "fastapi>=0.141.1",
+    "sqlalchemy>=2.0.52",
+    "aiosqlite>=0.22.1",
+    "uvicorn>=0.52.3",
+]
+
+
+[tool.poe.tasks]
+dev = "uvicorn main:app --reload --host 127.0.0.1 --port 2980"
+test = "pytest ./test"
+
+[tool.ruff.lint.flake8-bugbear]
+# Allow default arguments like, e.g., `data: List[str] = fastapi.Query(None)`.
+extend-immutable-calls = ["Depends", "fastapi.Depends", "Query", "fastapi.Query"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.3",
+]
