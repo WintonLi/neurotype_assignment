@@ -1,3 +1,13 @@
+
+# From Yunxi:
+
+No changes. Simply run `docker compose up` and you should be good to go.
+
+(Or better `make up` if you have `make` installed).
+
+The ChatGPT conversations is in pdf because it is too long, rendering broken markdown.
+
+
 # Neurotype take-home: starter harness
 
 **Using this is optional.** It exists so that nobody spends an hour of a four hour
