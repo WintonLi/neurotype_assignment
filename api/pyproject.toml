@@ -23,5 +23,6 @@ extend-immutable-calls = ["Depends", "fastapi.Depends", "Query", "fastapi.Query"
 
 [dependency-groups]
 dev = [
+    "poethepoet>=0.48.0",
     "ruff>=0.16.3",
 ]
