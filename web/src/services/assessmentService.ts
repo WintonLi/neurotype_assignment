@@ -62,3 +62,66 @@ export async function listAssessments(
   const response = await apiClient.get<AssessmentListResponse>("/assessments", { params });
   return response.data;
 }
+
+export interface ClientInfo {
+  date_of_birth: string;
+  nhs_number: string;
+  guardian_contact: string;
+  safeguarding_notes: string | null;
+}
+
+export interface AgeInfo {
+  years: number;
+  months: number;
+}
+
+export interface AssessmentDetail {
+  assessment_id: string;
+  client: ClientInfo;
+  assessed_at: string;
+  clinician_id: string;
+  age: AgeInfo;
+  domains: DomainResult[];
+  summary: string;
+  flagged: boolean;
+  status: AssessmentStatus;
+  issued_at: string | null;
+  issued_by: string | null;
+}
+
+export interface IssueAssessmentResponse {
+  assessment_id: string;
+  status: AssessmentStatus;
+  issued_at: string;
+  issued_by: string;
+}
+
+export interface SummaryUpdateResponse {
+  assessment_id: string;
+  summary: string;
+  flagged: boolean;
+}
+
+export async function getAssessment(assessmentId: string): Promise<AssessmentDetail> {
+  const response = await apiClient.get<AssessmentDetail>(`/assessments/${assessmentId}`);
+  return response.data;
+}
+
+export async function issueAssessment(assessmentId: string): Promise<IssueAssessmentResponse> {
+  const response = await apiClient.post<IssueAssessmentResponse>(
+    `/assessments/${assessmentId}/issue`,
+  );
+  return response.data;
+}
+
+export async function updateAssessmentSummary(
+  assessmentId: string,
+  summary: string,
+): Promise<SummaryUpdateResponse> {
+  const response = await apiClient.patch<SummaryUpdateResponse>(
+    `/assessments/${assessmentId}/summary`,
+    { summary },
+  );
+  return response.data;
+}
+

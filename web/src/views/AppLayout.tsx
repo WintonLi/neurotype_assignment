@@ -30,7 +30,7 @@ const items: MenuItem[] = [
 interface AppLayoutProps {}
 
 const AppLayout: FunctionComponent<AppLayoutProps> = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const username = useAssessmentStore((state) => state.username);
   const logout = useAssessmentStore((state) => state.logout);
 
