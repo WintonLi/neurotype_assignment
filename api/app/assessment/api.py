@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.audit.audit_service import AuditService
 from app.auth.dependencies import get_current_user
 from app.auth.models import User
 from app.database import get_db_session
@@ -61,7 +62,7 @@ async def get_assessment(
     current_user: User = Depends(get_current_user),
 ) -> AssessmentDetailResponse:
     try:
-        return await AssessmentService(session).get_assessment(
+        return await AssessmentService(session, AuditService(session)).get_assessment(
             assessment_id,
             actor_username=current_user.username,
         )
@@ -81,7 +82,7 @@ async def issue_assessment(
     current_user: User = Depends(get_current_user),
 ) -> IssueAssessmentResponse:
     try:
-        return await AssessmentService(session).issue_assessment(
+        return await AssessmentService(session, AuditService(session)).issue_assessment(
             assessment_id,
             actor_username=current_user.username,
             actor_roles=current_user.roles,
@@ -111,7 +112,7 @@ async def update_assessment_summary(
     current_user: User = Depends(get_current_user),
 ) -> SummaryUpdateResponse:
     try:
-        return await AssessmentService(session).update_summary(
+        return await AssessmentService(session, AuditService(session)).update_summary(
             assessment_id,
             request.summary,
             actor_username=current_user.username,

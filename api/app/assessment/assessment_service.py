@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from calendar import monthrange
-from datetime import date, datetime, timezone
-from uuid import uuid4
+from datetime import UTC, date, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.audit.models import AuditEvent
+from app.audit.audit_service import AuditService
+from app.audit.schemas import AuditAction, AuditEntityType
 
 from .assessment_repo import AssessmentRepo
 from .models import Assessment
@@ -41,9 +41,10 @@ class AssessmentPermissionError(Exception):
 
 
 class AssessmentService:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, audit_service: AuditService | None = None) -> None:
         self.session = session
         self.repo = AssessmentRepo(session)
+        self.audit_service = audit_service or AuditService(session)
 
     async def list_assessments(
         self,
@@ -84,7 +85,12 @@ class AssessmentService:
     ) -> AssessmentDetailResponse:
         assessment = await self._get(assessment_id)
         response = self._to_detail(assessment)
-        self.session.add(self._audit("view", assessment_id, actor_username))
+        self.audit_service.record(
+            actor_username=actor_username,
+            action=AuditAction.VIEW,
+            entity_type=AuditEntityType.ASSESSMENT,
+            entity_id=assessment_id,
+        )
         await self.session.commit()
         return response
 
@@ -102,8 +108,12 @@ class AssessmentService:
             raise AssessmentAlreadyIssuedError
         issued_at = self._now()
         await self.repo.issue(assessment, issued_at=issued_at, issued_by=actor_username)
-        self.session.add(
-            self._audit("issue", assessment_id, actor_username, occurred_at=issued_at)
+        self.audit_service.record(
+            actor_username=actor_username,
+            action=AuditAction.ISSUE,
+            entity_type=AuditEntityType.ASSESSMENT,
+            entity_id=assessment_id,
+            occurred_at=issued_at,
         )
         await self.session.commit()
         return IssueAssessmentResponse(
@@ -119,13 +129,12 @@ class AssessmentService:
         assessment = await self._get(assessment_id)
         before = assessment.summary
         await self.repo.update_summary(assessment, summary)
-        self.session.add(
-            self._audit(
-                "update",
-                assessment_id,
-                actor_username,
-                changes=[{"field": "summary", "before": before, "after": summary}],
-            )
+        self.audit_service.record(
+            actor_username=actor_username,
+            action=AuditAction.UPDATE,
+            entity_type=AuditEntityType.ASSESSMENT,
+            entity_id=assessment_id,
+            changes=[{"field": "summary", "before": before, "after": summary}],
         )
         await self.session.commit()
         return SummaryUpdateResponse(
@@ -260,24 +269,5 @@ class AssessmentService:
         )
 
     @staticmethod
-    def _audit(
-        action: str,
-        assessment_id: str,
-        actor_username: str,
-        *,
-        occurred_at: datetime | None = None,
-        changes: list[dict] | None = None,
-    ) -> AuditEvent:
-        return AuditEvent(
-            id=str(uuid4()),
-            occurred_at=occurred_at or AssessmentService._now(),
-            actor_username=actor_username,
-            action=action,
-            entity_type="assessment",
-            entity_id=assessment_id,
-            changes=changes,
-        )
-
-    @staticmethod
     def _now() -> datetime:
-        return datetime.now(timezone.utc)
+        return datetime.now(UTC)
