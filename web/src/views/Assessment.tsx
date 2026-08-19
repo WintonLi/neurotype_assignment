@@ -1,18 +1,18 @@
 import type { FunctionComponent } from 'react';
 import { Row, Col } from 'antd';
-import AssessmentQueue from '../components/AssessmentQueue';
 import DetailedAssessment from '../components/DetailedAssessment';
-interface AssessmentProps {
+import IssuedAssessment from '../components/IssusedAssessment';
+interface IssuedProps {
     
 }
 
-const Assessment: FunctionComponent<AssessmentProps> = () => {
+const Issued: FunctionComponent<IssuedProps> = () => {
 //   const detailedAssessment = useAssessmentStore(state => state.detailedAssessment);
 
   return (
     <Row>
       <Col span={12}>
-        <AssessmentQueue />
+        <IssuedAssessment />
       </Col>
 
       <Col span={12}>
@@ -22,4 +22,4 @@ const Assessment: FunctionComponent<AssessmentProps> = () => {
   );
 }
 
-export default Assessment;
+export default Issued;
